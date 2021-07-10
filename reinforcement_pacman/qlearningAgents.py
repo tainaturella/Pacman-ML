@@ -161,10 +161,14 @@ class ApproximateQAgent(PacmanQAgent):
        and update.  All other QLearningAgent functions
        should work as is.
     """
-    def __init__(self, extractor='IdentityExtractor', **args):
+    def __init__(self, extractor='SimpleExtractor', **args):
         self.featExtractor = util.lookup(extractor, globals())()
         PacmanQAgent.__init__(self, **args)
         self.weights = util.Counter()
+        self.weights['eats-food'] = 141.92115098549846
+        self.weights['closest-food'] = -0.2807304072125595
+        self.weights['bias'] = 112.27283669653234
+        self.weights['#-of-ghosts-1-step-away'] = -27.196301175691822
 
     def getWeights(self):
         return self.weights
@@ -194,6 +198,7 @@ class ApproximateQAgent(PacmanQAgent):
             incremented_features[k] *= (self.alpha*difference)
 
         self.weights += incremented_features
+        print(self.weights)
 
     def final(self, state):
         "Called at the end of each game."
@@ -204,20 +209,3 @@ class ApproximateQAgent(PacmanQAgent):
         if self.episodesSoFar == self.numTraining:
             # you might want to print your weights here for debugging
             print self.weights
-
-# {'closest-food': -1.4712681647072954, 'bias': -147.31826993759265, '#-of-ghosts-1-step-away': -442.70260110620143, 'eats-food': 130.75246842696492}
-class PlayingQAgent(ApproximateQAgent):
-
-    def __init__(self, **args):
-        ApproximateQAgent.__init__(self, **args)
-        self.weights = util.Counter()
-        self.weights['closest-food'] = -1.4712681647072954
-        self.weights['bias'] = -147.31826993759265
-        self.weights['#-of-ghosts-1-step-away'] = -442.70260110620143
-        self.weights['eats-food'] = 130.75246842696492
-
-    def update(self, state, action, nextState, reward):
-        # We do not update since we just want him to play
-        pass
-
-

@@ -20,19 +20,26 @@ import game
 import util
 import numpy as np
 
+
 class LeftTurnAgent(game.Agent):
     "An agent that turns left at every opportunity"
 
     def getAction(self, state):
         legal = state.getLegalPacmanActions()
         current = state.getPacmanState().configuration.direction
-        if current == Directions.STOP: current = Directions.NORTH
+        if current == Directions.STOP:
+            current = Directions.NORTH
         left = Directions.LEFT[current]
-        if left in legal: return left
-        if current in legal: return current
-        if Directions.RIGHT[current] in legal: return Directions.RIGHT[current]
-        if Directions.LEFT[left] in legal: return Directions.LEFT[left]
+        if left in legal:
+            return left
+        if current in legal:
+            return current
+        if Directions.RIGHT[current] in legal:
+            return Directions.RIGHT[current]
+        if Directions.LEFT[left] in legal:
+            return Directions.LEFT[left]
         return Directions.STOP
+
 
 class GreedyAgent(Agent):
     def __init__(self, evalFn="scoreEvaluation"):
@@ -42,10 +49,16 @@ class GreedyAgent(Agent):
     def getAction(self, state):
         # Generate candidate actions
         legal = state.getLegalPacmanActions()
-        if Directions.STOP in legal: legal.remove(Directions.STOP)
+        if Directions.STOP in legal:
+            legal.remove(Directions.STOP)
 
-        successors = [(state.generateSuccessor(0, action), action) for action in legal]
-        scored = [(self.evaluationFunction(state), action) for state, action in successors]
+        successors = [
+            (state.generateSuccessor(0, action), action) for action in legal
+        ]
+        scored = [
+            (self.evaluationFunction(state), action)
+            for state, action in successors
+        ]
         bestScore = max(scored)[0]
         bestActions = [pair[1] for pair in scored if pair[0] == bestScore]
         return random.choice(bestActions)
@@ -53,26 +66,34 @@ class GreedyAgent(Agent):
 
 class BioAgent(Agent):
 
-    integer_to_action_dict = {0: "Stop",
-                              1: "West",
-                              2: "East",
-                              3: "North",
-                              4: "South"}
+    integer_to_action_dict = {
+        0: "Stop",
+        1: "West",
+        2: "East",
+        3: "North",
+        4: "South",
+    }
 
-    action_to_integer_dict = {"Stop": 0,
-                              "West": 1,
-                              "East": 2,
-                              "North": 3,
-                              "South": 4}
+    action_to_integer_dict = {
+        "Stop": 0,
+        "West": 1,
+        "East": 2,
+        "North": 3,
+        "South": 4,
+    }
 
     actions = ["Stop", "West", "East", "North", "South"]
 
-    def __init__(self, evalFn = "scoreEvaluation", nn_model = None,  extractor='SimpleExtractor'):
+    def __init__(
+        self,
+        evalFn="scoreEvaluation",
+        nn_model=None,
+        extractor="SimpleExtractor",
+    ):
         self.nn_model = nn_model
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.featExtractor = util.lookup(extractor, globals())()
         assert self.evaluationFunction is not None
-
 
     def getAction(self, state):
         assert self.nn_model is not None
@@ -89,13 +110,15 @@ class BioAgent(Agent):
         # Create an array with them
         features = []
         for d in dict_features:
-            features.append(d['closest-food'])
-            features.append(d['bias'])
-            features.append(d['#-of-ghosts-1-step-away'])
-            features.append(d['eats-food'])
+            features.append(d["closest-food"])
+            features.append(d["bias"])
+            features.append(d["#-of-ghosts-1-step-away"])
+            features.append(d["eats-food"])
         features = np.array(features)
 
-        next_action = BioAgent.integer_to_action_dict.get(np.argmax(self.nn_model.predict(features[np.newaxis,...])))
+        next_action = BioAgent.integer_to_action_dict.get(
+            np.argmax(self.nn_model.predict(features[np.newaxis, ...]))
+        )
         assert next_action != -1
         if next_action in legal:
             return next_action
@@ -105,28 +128,37 @@ class BioAgent(Agent):
 def scoreEvaluation(state):
     return state.getScore()
 
+
 class NEATAgent(Agent):
 
-    integer_to_action_dict = {0: "Stop",
-                              1: "West",
-                              2: "East",
-                              3: "North",
-                              4: "South"}
+    integer_to_action_dict = {
+        0: "Stop",
+        1: "West",
+        2: "East",
+        3: "North",
+        4: "South",
+    }
 
-    action_to_integer_dict = {"Stop": 0,
-                              "West": 1,
-                              "East": 2,
-                              "North": 3,
-                              "South": 4}
+    action_to_integer_dict = {
+        "Stop": 0,
+        "West": 1,
+        "East": 2,
+        "North": 3,
+        "South": 4,
+    }
 
     actions = ["Stop", "West", "East", "North", "South"]
 
-    def __init__(self, evalFn = "scoreEvaluation", nn_model = None,  extractor='SimpleExtractor'):
+    def __init__(
+        self,
+        evalFn="scoreEvaluation",
+        nn_model=None,
+        extractor="SimpleExtractor",
+    ):
         self.nn_model = nn_model
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.featExtractor = util.lookup(extractor, globals())()
         assert self.evaluationFunction is not None
-
 
     def getAction(self, state):
         assert self.nn_model is not None
@@ -139,7 +171,9 @@ class NEATAgent(Agent):
         features = np.array(features).flatten()
 
         # Run the network
-        next_action = NEATAgent.integer_to_action_dict.get(np.argmax(self.nn_model.activate(features)))
+        next_action = NEATAgent.integer_to_action_dict.get(
+            np.argmax(self.nn_model.activate(features))
+        )
 
         assert next_action != -1
         if next_action in legal:
@@ -149,4 +183,3 @@ class NEATAgent(Agent):
 
 def scoreEvaluation(state):
     return state.getScore()
-
