@@ -198,7 +198,6 @@ class ApproximateQAgent(PacmanQAgent):
             incremented_features[k] *= (self.alpha*difference)
 
         self.weights += incremented_features
-        print(self.weights)
 
     def final(self, state):
         "Called at the end of each game."
